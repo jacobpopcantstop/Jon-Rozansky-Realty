@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Admin Dashboard | Jon Rozansky Real Estate</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="../css/styles.css">
+  <style>
+    /* Admin-specific styles */
+    .admin-layout {
+      display: grid;
+      grid-template-columns: 250px 1fr;
+      min-height: 100vh;
+    }
+
+    .admin-sidebar {
+      background: var(--navy-dark);
+      padding: 2rem 0;
+      position: fixed;
+      width: 250px;
+      height: 100vh;
+      overflow-y: auto;
+    }
+
+    .admin-sidebar-header {
+      padding: 0 1.5rem 2rem;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      margin-bottom: 1rem;
+    }
+
+    .admin-sidebar-header h2 {
+      color: var(--white);
+      font-size: 1.25rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .admin-sidebar-header span {
+      color: var(--gold);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .admin-nav {
+      list-style: none;
+      padding: 0;
+    }
+
+    .admin-nav-section {
+      padding: 1rem 1.5rem 0.5rem;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .admin-nav a {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1.5rem;
+      color: var(--platinum);
+      font-size: 0.9375rem;
+      transition: all 0.2s ease;
+    }
+
+    .admin-nav a:hover,
+    .admin-nav a.active {
+      background: rgba(201, 169, 98, 0.1);
+      color: var(--gold);
+    }
+
+    .admin-nav a svg {
+      width: 20px;
+      height: 20px;
+      fill: currentColor;
+    }
+
+    .admin-main {
+      margin-left: 250px;
+      background: var(--platinum-light);
+      min-height: 100vh;
+    }
+
+    .admin-header {
+      background: var(--white);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .admin-header h1 {
+      font-size: 1.5rem;
+      margin-bottom: 0;
+    }
+
+    .admin-header-actions {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .admin-user {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .admin-user-avatar {
+      width: 40px;
+      height: 40px;
+      background: var(--navy);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--gold);
+      font-weight: 700;
+    }
+
+    .admin-content {
+      padding: 2rem;
+    }
+
+    /* Dashboard Stats */
+    .dashboard-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card-admin {
+      background: var(--white);
+      padding: 1.5rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .stat-card-admin-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1rem;
+    }
+
+    .stat-card-admin-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .stat-card-admin-icon svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    .stat-card-admin-icon.blue {
+      background: rgba(59, 130, 246, 0.1);
+    }
+    .stat-card-admin-icon.blue svg { fill: #3b82f6; }
+
+    .stat-card-admin-icon.green {
+      background: rgba(34, 197, 94, 0.1);
+    }
+    .stat-card-admin-icon.green svg { fill: #22c55e; }
+
+    .stat-card-admin-icon.gold {
+      background: rgba(201, 169, 98, 0.1);
+    }
+    .stat-card-admin-icon.gold svg { fill: var(--gold); }
+
+    .stat-card-admin-icon.purple {
+      background: rgba(139, 92, 246, 0.1);
+    }
+    .stat-card-admin-icon.purple svg { fill: #8b5cf6; }
+
+    .stat-card-admin h3 {
+      font-size: 2rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .stat-card-admin p {
+      color: var(--text-muted);
+      font-size: 0.875rem;
+      margin-bottom: 0;
+    }
+
+    .stat-change {
+      font-size: 0.8125rem;
+      font-weight: 600;
+    }
+
+    .stat-change.up {
+      color: #22c55e;
+    }
+
+    .stat-change.down {
+      color: #ef4444;
+    }
+
+    /* Dashboard Grid */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 1.5rem;
+    }
+
+    .dashboard-card {
+      background: var(--white);
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .dashboard-card-header {
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--platinum);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .dashboard-card-header h3 {
+      font-size: 1.125rem;
+      margin-bottom: 0;
+    }
+
+    .dashboard-card-body {
+      padding: 1.5rem;
+    }
+
+    /* Lead Table */
+    .leads-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .leads-table th,
+    .leads-table td {
+      padding: 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--platinum);
+    }
+
+    .leads-table th {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .leads-table tr:hover {
+      background: var(--platinum-light);
+    }
+
+    .lead-name {
+      font-weight: 600;
+      color: var(--navy);
+    }
+
+    .lead-email {
+      color: var(--text-muted);
+      font-size: 0.875rem;
+    }
+
+    .lead-status {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .lead-status.new {
+      background: rgba(59, 130, 246, 0.1);
+      color: #3b82f6;
+    }
+
+    .lead-status.contacted {
+      background: rgba(201, 169, 98, 0.1);
+      color: var(--gold-dark);
+    }
+
+    .lead-status.qualified {
+      background: rgba(34, 197, 94, 0.1);
+      color: #22c55e;
+    }
+
+    .lead-status.closed {
+      background: rgba(139, 92, 246, 0.1);
+      color: #8b5cf6;
+    }
+
+    /* Activity Feed */
+    .activity-item {
+      display: flex;
+      gap: 1rem;
+      padding: 1rem 0;
+      border-bottom: 1px solid var(--platinum);
+    }
+
+    .activity-item:last-child {
+      border-bottom: none;
+    }
+
+    .activity-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--platinum-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .activity-icon svg {
+      width: 18px;
+      height: 18px;
+      fill: var(--navy);
+    }
+
+    .activity-content h4 {
+      font-size: 0.9375rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .activity-content p {
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      margin-bottom: 0;
+    }
+
+    /* Quick Actions */
+    .quick-actions {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+
+    .quick-action-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 1.5rem;
+      background: var(--platinum-light);
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      color: var(--navy);
+    }
+
+    .quick-action-btn:hover {
+      background: var(--navy);
+      color: var(--white);
+    }
+
+    .quick-action-btn svg {
+      width: 24px;
+      height: 24px;
+      fill: currentColor;
+    }
+
+    .quick-action-btn span {
+      font-size: 0.8125rem;
+      font-weight: 600;
+    }
+
+    /* Login Overlay */
+    .login-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(10, 22, 40, 0.95);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+
+    .login-box {
+      background: var(--white);
+      padding: 3rem;
+      border-radius: 8px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    }
+
+    .login-box h2 {
+      text-align: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .login-box p {
+      text-align: center;
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .dashboard-stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .admin-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .admin-sidebar {
+        display: none;
+      }
+
+      .admin-main {
+        margin-left: 0;
+      }
+
+      .dashboard-stats {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Login Overlay (demo - would be handled by auth in production) -->
+  <div class="login-overlay" id="loginOverlay">
+    <div class="login-box">
+      <h2>Admin Login</h2>
+      <p>Market Master Dashboard</p>
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="login-email" class="form-label">Email</label>
+          <input type="email" id="login-email" class="form-input" value="jon@jonrozansky.com" required>
+        </div>
+        <div class="form-group">
+          <label for="login-password" class="form-label">Password</label>
+          <input type="password" id="login-password" class="form-input" value="demo123" required>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%;">Sign In</button>
+      </form>
+      <p style="margin-top: 1rem; font-size: 0.8125rem; color: var(--text-muted);">Demo: Click Sign In to access dashboard</p>
+    </div>
+  </div>
+
+  <div class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <div class="admin-sidebar-header">
+        <h2>Jon Rozansky</h2>
+        <span>Admin Dashboard</span>
+      </div>
+
+      <ul class="admin-nav">
+        <li class="admin-nav-section">Main</li>
+        <li>
+          <a href="#" class="active">
+            <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+            Dashboard
+          </a>
+        </li>
+        <li>
+          <a href="#">
+            <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+            Leads
+          </a>
+        </li>
+        <li>
+          <a href="#">
+            <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+            Listings
+          </a>
+        </li>
+        <li>
+          <a href="#">
+            <svg viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11zM9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm-8 4H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2z"/></svg>
+            Appointments
+          </a>
+        </li>
+
+        <li class="admin-nav-section">Content</li>
+        <li>
+          <a href="#">
+            <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+            Blog Posts
+          </a>
+        </li>
+        <li>
+          <a href="#">
+            <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+            Neighborhoods
+          </a>
+        </li>
+        <li>
+          <a href="#">
+            <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+            Testimonials
+          </a>
+        </li>
+
+        <li class="admin-nav-section">Settings</li>
+        <li>
+          <a href="#">
+            <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+            Settings
+          </a>
+        </li>
+        <li>
+          <a href="../index.html">
+            <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+            View Site
+          </a>
+        </li>
+      </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Dashboard</h1>
+        <div class="admin-header-actions">
+          <button class="btn btn-primary btn-sm">+ New Lead</button>
+          <div class="admin-user">
+            <div class="admin-user-avatar">JR</div>
+            <span style="font-weight: 600;">Jon Rozansky</span>
+          </div>
+        </div>
+      </header>
+
+      <div class="admin-content">
+        <!-- Stats Cards -->
+        <div class="dashboard-stats">
+          <div class="stat-card-admin">
+            <div class="stat-card-admin-header">
+              <div>
+                <h3>47</h3>
+                <p>New Leads This Month</p>
+              </div>
+              <div class="stat-card-admin-icon blue">
+                <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+              </div>
+            </div>
+            <span class="stat-change up">+12% from last month</span>
+          </div>
+
+          <div class="stat-card-admin">
+            <div class="stat-card-admin-header">
+              <div>
+                <h3>12</h3>
+                <p>Active Listings</p>
+              </div>
+              <div class="stat-card-admin-icon green">
+                <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+              </div>
+            </div>
+            <span class="stat-change up">+3 this week</span>
+          </div>
+
+          <div class="stat-card-admin">
+            <div class="stat-card-admin-header">
+              <div>
+                <h3>$2.4M</h3>
+                <p>Pipeline Value</p>
+              </div>
+              <div class="stat-card-admin-icon gold">
+                <svg viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
+              </div>
+            </div>
+            <span class="stat-change up">+$450K this month</span>
+          </div>
+
+          <div class="stat-card-admin">
+            <div class="stat-card-admin-header">
+              <div>
+                <h3>8</h3>
+                <p>Appointments This Week</p>
+              </div>
+              <div class="stat-card-admin-icon purple">
+                <svg viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/></svg>
+              </div>
+            </div>
+            <span class="stat-change">3 today</span>
+          </div>
+        </div>
+
+        <!-- Main Grid -->
+        <div class="dashboard-grid">
+          <!-- Recent Leads -->
+          <div class="dashboard-card">
+            <div class="dashboard-card-header">
+              <h3>Recent Leads</h3>
+              <a href="#" class="btn btn-outline btn-sm">View All</a>
+            </div>
+            <div class="dashboard-card-body" style="padding: 0;">
+              <table class="leads-table">
+                <thead>
+                  <tr>
+                    <th>Contact</th>
+                    <th>Interest</th>
+                    <th>Source</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+                      <div class="lead-name">Sarah Mitchell</div>
+                      <div class="lead-email">sarah.m@email.com</div>
+                    </td>
+                    <td>Buying - La Jolla</td>
+                    <td>Website</td>
+                    <td><span class="lead-status new">New</span></td>
+                    <td>Today</td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="lead-name">Robert Chen</div>
+                      <div class="lead-email">r.chen@email.com</div>
+                    </td>
+                    <td>Selling - North Park</td>
+                    <td>Referral</td>
+                    <td><span class="lead-status contacted">Contacted</span></td>
+                    <td>Yesterday</td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="lead-name">Maria Garcia</div>
+                      <div class="lead-email">mgarcia@email.com</div>
+                    </td>
+                    <td>Probate Sale</td>
+                    <td>Google</td>
+                    <td><span class="lead-status qualified">Qualified</span></td>
+                    <td>Jan 18</td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="lead-name">James Wilson</div>
+                      <div class="lead-email">jwilson@email.com</div>
+                    </td>
+                    <td>Investment</td>
+                    <td>LinkedIn</td>
+                    <td><span class="lead-status contacted">Contacted</span></td>
+                    <td>Jan 17</td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="lead-name">Patricia Davis</div>
+                      <div class="lead-email">pdavis@email.com</div>
+                    </td>
+                    <td>Senior Downsize</td>
+                    <td>Zillow</td>
+                    <td><span class="lead-status closed">Closed</span></td>
+                    <td>Jan 15</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Right Column -->
+          <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+            <!-- Quick Actions -->
+            <div class="dashboard-card">
+              <div class="dashboard-card-header">
+                <h3>Quick Actions</h3>
+              </div>
+              <div class="dashboard-card-body">
+                <div class="quick-actions">
+                  <a href="#" class="quick-action-btn">
+                    <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                    <span>Add Lead</span>
+                  </a>
+                  <a href="#" class="quick-action-btn">
+                    <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                    <span>New Listing</span>
+                  </a>
+                  <a href="#" class="quick-action-btn">
+                    <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                    <span>Write Blog</span>
+                  </a>
+                  <a href="#" class="quick-action-btn">
+                    <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+                    <span>Send Email</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="dashboard-card">
+              <div class="dashboard-card-header">
+                <h3>Recent Activity</h3>
+              </div>
+              <div class="dashboard-card-body">
+                <div class="activity-item">
+                  <div class="activity-icon">
+                    <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+                  </div>
+                  <div class="activity-content">
+                    <h4>New inquiry from website</h4>
+                    <p>Sarah Mitchell - La Jolla buyer</p>
+                  </div>
+                </div>
+                <div class="activity-item">
+                  <div class="activity-icon">
+                    <svg viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/></svg>
+                  </div>
+                  <div class="activity-content">
+                    <h4>Showing scheduled</h4>
+                    <p>1234 Ocean Blvd - 2:00 PM today</p>
+                  </div>
+                </div>
+                <div class="activity-item">
+                  <div class="activity-icon">
+                    <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                  </div>
+                  <div class="activity-content">
+                    <h4>New testimonial received</h4>
+                    <p>5-star review from Robert Chen</p>
+                  </div>
+                </div>
+                <div class="activity-item">
+                  <div class="activity-icon">
+                    <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                  </div>
+                  <div class="activity-content">
+                    <h4>Listing updated</h4>
+                    <p>Price reduced: 456 Park Ave</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // Simple login demo
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      document.getElementById('loginOverlay').style.display = 'none';
+    });
+  </script>
+</body>
+</html>
