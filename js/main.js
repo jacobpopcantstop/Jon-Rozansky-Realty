@@ -448,3 +448,211 @@ class TestimonialCarousel {
 document.querySelectorAll('.testimonial-carousel').forEach(carousel => {
   new TestimonialCarousel(carousel);
 });
+
+// ========== Mortgage Calculator ==========
+(function() {
+  'use strict';
+
+  // Check if we're on the calculator page
+  const calculatorForm = document.querySelector('.calculator-form');
+  if (!calculatorForm) return;
+
+  // DOM Elements
+  const homePriceInput = document.getElementById('home-price');
+  const homePriceSlider = document.getElementById('home-price-slider');
+  const downPaymentInput = document.getElementById('down-payment');
+  const downPaymentPercentInput = document.getElementById('down-payment-percent');
+  const downPaymentSlider = document.getElementById('down-payment-slider');
+  const interestRateInput = document.getElementById('interest-rate');
+  const interestRateSlider = document.getElementById('interest-rate-slider');
+  const propertyTaxInput = document.getElementById('property-tax');
+  const homeInsuranceInput = document.getElementById('home-insurance');
+  const hoaFeesInput = document.getElementById('hoa-fees');
+  const termButtons = document.querySelectorAll('.term-btn');
+
+  // Result Elements
+  const monthlyPaymentEl = document.getElementById('monthly-payment');
+  const piPaymentEl = document.getElementById('pi-payment');
+  const taxPaymentEl = document.getElementById('tax-payment');
+  const insurancePaymentEl = document.getElementById('insurance-payment');
+  const hoaPaymentEl = document.getElementById('hoa-payment');
+  const hoaBreakdownEl = document.getElementById('hoa-breakdown');
+  const loanAmountEl = document.getElementById('loan-amount');
+  const totalInterestEl = document.getElementById('total-interest');
+  const totalCostEl = document.getElementById('total-cost');
+
+  // Chart segments
+  const piSegment = document.querySelector('.pi-segment');
+  const taxSegment = document.querySelector('.tax-segment');
+  const insuranceSegment = document.querySelector('.insurance-segment');
+  const hoaSegment = document.querySelector('.hoa-segment');
+
+  // State
+  let loanTermYears = 30;
+
+  // Utility functions
+  function parseNumber(value) {
+    return parseFloat(value.replace(/[^0-9.-]/g, '')) || 0;
+  }
+
+  function formatCurrency(num) {
+    return '$' + Math.round(num).toLocaleString('en-US');
+  }
+
+  function formatInputNumber(num) {
+    return Math.round(num).toLocaleString('en-US');
+  }
+
+  // Calculate mortgage payment
+  function calculateMortgage() {
+    const homePrice = parseNumber(homePriceInput.value);
+    const downPayment = parseNumber(downPaymentInput.value);
+    const interestRate = parseNumber(interestRateInput.value) / 100;
+    const propertyTax = parseNumber(propertyTaxInput.value);
+    const homeInsurance = parseNumber(homeInsuranceInput.value);
+    const hoaFees = parseNumber(hoaFeesInput.value);
+
+    const loanAmount = homePrice - downPayment;
+    const monthlyRate = interestRate / 12;
+    const numPayments = loanTermYears * 12;
+
+    // Calculate principal & interest payment
+    let piPayment = 0;
+    if (monthlyRate > 0 && loanAmount > 0) {
+      piPayment = loanAmount * (monthlyRate * Math.pow(1 + monthlyRate, numPayments)) / (Math.pow(1 + monthlyRate, numPayments) - 1);
+    } else if (loanAmount > 0) {
+      piPayment = loanAmount / numPayments;
+    }
+
+    // Calculate other monthly costs
+    const monthlyTax = propertyTax / 12;
+    const monthlyInsurance = homeInsurance / 12;
+    const monthlyHoa = hoaFees;
+
+    // Total monthly payment
+    const totalMonthly = piPayment + monthlyTax + monthlyInsurance + monthlyHoa;
+
+    // Loan totals
+    const totalPaid = piPayment * numPayments;
+    const totalInterest = totalPaid - loanAmount;
+
+    // Update results
+    monthlyPaymentEl.textContent = formatCurrency(totalMonthly);
+    piPaymentEl.textContent = formatCurrency(piPayment);
+    taxPaymentEl.textContent = formatCurrency(monthlyTax);
+    insurancePaymentEl.textContent = formatCurrency(monthlyInsurance);
+    hoaPaymentEl.textContent = formatCurrency(monthlyHoa);
+    loanAmountEl.textContent = formatCurrency(loanAmount);
+    totalInterestEl.textContent = formatCurrency(totalInterest);
+    totalCostEl.textContent = formatCurrency(totalPaid);
+
+    // Show/hide HOA breakdown
+    if (monthlyHoa > 0) {
+      hoaBreakdownEl.style.display = 'flex';
+    } else {
+      hoaBreakdownEl.style.display = 'none';
+    }
+
+    // Update chart
+    if (totalMonthly > 0) {
+      const piPercent = (piPayment / totalMonthly) * 100;
+      const taxPercent = (monthlyTax / totalMonthly) * 100;
+      const insurancePercent = (monthlyInsurance / totalMonthly) * 100;
+      const hoaPercent = (monthlyHoa / totalMonthly) * 100;
+
+      piSegment.style.width = piPercent + '%';
+      taxSegment.style.width = taxPercent + '%';
+      insuranceSegment.style.width = insurancePercent + '%';
+      hoaSegment.style.width = hoaPercent + '%';
+    }
+  }
+
+  // Sync down payment with percentage
+  function syncDownPaymentFromPercent() {
+    const homePrice = parseNumber(homePriceInput.value);
+    const percent = parseNumber(downPaymentPercentInput.value);
+    const downPayment = (percent / 100) * homePrice;
+    downPaymentInput.value = formatInputNumber(downPayment);
+    downPaymentSlider.value = percent;
+    calculateMortgage();
+  }
+
+  function syncDownPaymentFromAmount() {
+    const homePrice = parseNumber(homePriceInput.value);
+    const downPayment = parseNumber(downPaymentInput.value);
+    const percent = homePrice > 0 ? (downPayment / homePrice) * 100 : 0;
+    downPaymentPercentInput.value = Math.round(percent);
+    downPaymentSlider.value = Math.round(percent);
+    calculateMortgage();
+  }
+
+  // Event listeners for inputs
+  homePriceInput.addEventListener('input', function() {
+    homePriceSlider.value = parseNumber(this.value);
+    syncDownPaymentFromPercent();
+  });
+
+  homePriceInput.addEventListener('blur', function() {
+    this.value = formatInputNumber(parseNumber(this.value));
+  });
+
+  homePriceSlider.addEventListener('input', function() {
+    homePriceInput.value = formatInputNumber(parseNumber(this.value));
+    syncDownPaymentFromPercent();
+  });
+
+  downPaymentInput.addEventListener('input', function() {
+    syncDownPaymentFromAmount();
+  });
+
+  downPaymentInput.addEventListener('blur', function() {
+    this.value = formatInputNumber(parseNumber(this.value));
+  });
+
+  downPaymentPercentInput.addEventListener('input', function() {
+    syncDownPaymentFromPercent();
+  });
+
+  downPaymentSlider.addEventListener('input', function() {
+    downPaymentPercentInput.value = this.value;
+    syncDownPaymentFromPercent();
+  });
+
+  interestRateInput.addEventListener('input', function() {
+    interestRateSlider.value = parseNumber(this.value);
+    calculateMortgage();
+  });
+
+  interestRateSlider.addEventListener('input', function() {
+    interestRateInput.value = this.value;
+    calculateMortgage();
+  });
+
+  propertyTaxInput.addEventListener('input', calculateMortgage);
+  propertyTaxInput.addEventListener('blur', function() {
+    this.value = formatInputNumber(parseNumber(this.value));
+  });
+
+  homeInsuranceInput.addEventListener('input', calculateMortgage);
+  homeInsuranceInput.addEventListener('blur', function() {
+    this.value = formatInputNumber(parseNumber(this.value));
+  });
+
+  hoaFeesInput.addEventListener('input', calculateMortgage);
+  hoaFeesInput.addEventListener('blur', function() {
+    this.value = formatInputNumber(parseNumber(this.value));
+  });
+
+  // Loan term buttons
+  termButtons.forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      termButtons.forEach(function(b) { b.classList.remove('active'); });
+      this.classList.add('active');
+      loanTermYears = parseInt(this.dataset.years, 10);
+      calculateMortgage();
+    });
+  });
+
+  // Initial calculation
+  calculateMortgage();
+})();
