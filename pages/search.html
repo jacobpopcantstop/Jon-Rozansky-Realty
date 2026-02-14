@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Search-focused home search planning page with neighborhood and price guidance.">
+  <title>Search San Diego Homes | Jon Rozansky</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+  <header class="nav-header"><nav class="nav-container"><a href="../index.html" class="nav-logo"><div><div class="nav-logo-text">Jon <span>Rozansky</span></div><div class="nav-tagline">San Diego Real Estate</div></div></a><ul class="nav-menu"><li><a href="../index.html">Home</a></li><li><a href="about.html">About</a></li><li><a href="neighborhoods.html">Neighborhoods</a></li><li><a href="services.html">Services</a></li><li><a href="resources.html">Resources</a></li><li><a href="contact.html">Contact</a></li></ul><div class="nav-cta"><a href="tel:+16195550123" class="btn btn-outline btn-sm">Call Jon</a><a href="contact.html" class="btn btn-primary btn-sm">Get Valuation</a></div><button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false"><span></span><span></span><span></span></button></nav></header>
+
+  <section class="page-header"><div class="container"><nav class="breadcrumb"><a href="../index.html">Home</a><span>/</span><span>Search Homes</span></nav><h1>Smart Home Search Planning</h1><p>Tell me your goals and I’ll create a short list of neighborhoods and properties that match your timeline, budget, and lifestyle.</p></div></section>
+
+  <section><div class="container">
+    <div class="about-grid">
+      <div class="about-content">
+        <h2>Build Your Custom Search Brief</h2>
+        <form class="contact-form" action="contact.html" method="get">
+          <div class="form-group"><label for="budget">Target Budget</label><input id="budget" name="budget" type="text" placeholder="$900,000 - $1,200,000"></div>
+          <div class="form-group"><label for="beds">Bedrooms Needed</label><input id="beds" name="beds" type="number" min="1" max="10" placeholder="3"></div>
+          <div class="form-group"><label for="area">Preferred Areas</label><input id="area" name="area" type="text" placeholder="La Jolla, Carmel Valley, North Park"></div>
+          <div class="form-group"><label for="notes">Must-Haves</label><textarea id="notes" name="notes" rows="5" placeholder="School district, single-level, ADU potential, etc."></textarea></div>
+          <button class="btn btn-primary" type="submit">Continue to Consultation</button>
+        </form>
+      </div>
+      <div>
+        <div class="service-card"><h3>What You’ll Get</h3><ul style="padding-left:1.2rem;"><li>Neighborhood short list matched to budget</li><li>Recent sold comps by micro-market</li><li>Negotiation strategy for each target area</li><li>Custom alert setup and off-market outreach</li></ul></div>
+      </div>
+    </div>
+  </div></section>
+
+  <footer class="footer"><div class="container"><div class="footer-bottom"><p>&copy; 2026 Jon Rozansky Real Estate. All rights reserved.</p></div></div></footer>
+  <script src="../js/main.js"></script>
+</body>
+</html>
